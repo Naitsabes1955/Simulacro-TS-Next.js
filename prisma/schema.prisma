@@ -1,0 +1,53 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id        String     @id @default(uuid())
+  email     String     @unique
+  password  String
+  role      Role       @default(EMPLOYEE)
+  status    Status     @default(ACTIVE)
+  createdAt DateTime   @default(now())
+  logs      AuditLog[]
+  schedules Schedule[]
+}
+
+model Schedule {
+  id        String         @id @default(uuid())
+  userId    String
+  start     DateTime
+  end       DateTime
+  status    ScheduleStatus @default(ACTIVE)
+  createdAt DateTime       @default(now())
+  user      User           @relation(fields: [userId], references: [id])
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  action    String
+  userId    String?
+  createdAt DateTime @default(now())
+  user      User?    @relation(fields: [userId], references: [id])
+}
+
+enum Role {
+  ADMIN
+  MANAGER
+  EMPLOYEE
+}
+
+enum Status {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+}
+
+enum ScheduleStatus {
+  ACTIVE
+  CANCELLED
+}
